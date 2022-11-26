@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-// Handle create new user post requests:
+// Handle POST requests to create new user:
 //  initialize New user model
 //  save to db
 //  return username and _id
@@ -51,10 +51,22 @@ app.post('/api/users', (req, res) => {
       "username": userSaved.username,
       "_id": userSaved._id
     });
-    
+
   }); // user.save() block
 }); // new user post block
 
+// Handle GET requests to /api/users
+//  display list of all users
+//  format will be an array of object literals
+app.get('/api/users', (req,res) => {
+  User.find((findErr, usersFound) => {
+    if (findErr) {
+      console.log('User.find() error');
+      console.error(findErr);
+    }
+    res.json(usersFound);
+  })
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
