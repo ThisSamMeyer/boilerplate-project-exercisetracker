@@ -18,10 +18,12 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 const Schema = mongoose.Schema;
 const userSchema = new Schema ({
   username: {
-    type: String, required: true
+    type: String,
+    required: true
   },
   exercises: {
-    type: Array
+    type: Array,
+    default: []
   }
 });
 
@@ -58,7 +60,7 @@ app.post('/api/users', (req, res) => {
 // Handle GET requests to /api/users
 //  display list of all users
 //  format will be an array of object literals
-app.get('/api/users', (req,res) => {
+app.get('/api/users', (req, res) => {
   let userList = [];
   User.find((findErr, usersFound) => {
     if (findErr) {
@@ -77,7 +79,44 @@ app.get('/api/users', (req,res) => {
 
 // Handle POST requests to /api/users/:_id/exercises
 //  find user in db by _id
-//  update user exercise array with new exercise object
+//  update user exercise array with new exercise object:
+//    description: string
+//    duration: number
+//    date: date string (current date if field is blank)
+//  return updated user object
+app.post('/api/users/:_id/exercises', (req, res) => {
+
+  let {description: description, duration: duration, date: date} = req.body;
+  let id = req.params._id;
+
+  if (!date) {
+    date = new Date().toDateString();
+  } else {
+    date = new Date(date.replaceAll('-', ',')).toDateString()
+  }
+
+  let addExercise = {description, duration, date}
+
+  User.findOneAndUpdate(
+    {_id: id},
+    {"$push": {exercises: addExercise}},
+    {new: true},
+    (findAndUpdateErr, updatedUser) => {
+      if (findAndUpdateErr) {
+        console.log('findOneAndUpdate() error');
+        console.error(findAndUpdateErr);
+      }
+      res.json({
+        "username": updatedUser.username,
+        "_id": updatedUser._id,
+        "description": addExercise.description,
+        "duration": addExercise.duration,
+        "date": addExercise.date
+      })
+    }
+  );
+
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
