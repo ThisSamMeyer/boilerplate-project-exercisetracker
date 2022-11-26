@@ -65,8 +65,7 @@ app.get('/api/users', (req,res) => {
     usersFound.forEach(user => {
       userList.push({
         _id: user._id,
-        username: user.username,
-        __v: user.__v
+        username: user.username
       })
     })
     res.json(userList);
