@@ -19,6 +19,9 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema ({
   username: {
     type: String, required: true
+  },
+  exercises: {
+    type: Array
   }
 });
 
@@ -71,6 +74,10 @@ app.get('/api/users', (req,res) => {
     res.json(userList);
   }); // User.find() block
 }); // GET all users block
+
+// Handle POST requests to /api/users/:_id/exercises
+//  find user in db by _id
+//  update user exercise array with new exercise object
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
