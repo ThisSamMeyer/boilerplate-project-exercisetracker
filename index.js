@@ -122,15 +122,20 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   );
 });
 
-// Handle GET requests to /api/users/:_id/exercises
-app.get('/api/users/:_id/exercises', (req, res) => {
+// Handle GET requests to /api/users/:_id/logs
+app.get('/api/users/:_id/logs', (req, res) => {
   let id = req.params._id;
-  User.findById(id, (findByIdErr, userFound) => {
-    if (findByIdErr) {
-      console.log("findById() error");
-      console.error(findByIdErr);
+  User.findOne({_id: id}, (findOneErr, userFound) => {
+    if (findOneErr) {
+      console.log("findOne() error");
+      console.error(findOneErr);
     }
-    res.json(userFound.logs);
+    res.json({
+      "username": userFound.username,
+      "_id": userFound._id,
+      "count": userFound.logs.length,
+      "log": userFound.logs
+    });
   });
 })
 
