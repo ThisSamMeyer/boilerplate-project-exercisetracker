@@ -77,8 +77,8 @@ app.get('/api/users', (req, res) => {
       })
     })
     res.json(userList);
-  }); // User.find() block
-}); // GET all users block
+  });
+});
 
 // Handle POST requests to /api/users/:_id/exercises
 //  find user in db by _id
@@ -93,7 +93,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   let id = req.params._id;
 
   duration = Number(duration);
-  
+
   if (!date) {
     date = new Date().toDateString();
   } else {
@@ -120,8 +120,19 @@ app.post('/api/users/:_id/exercises', (req, res) => {
       })
     }
   );
-
 });
+
+// Handle GET requests to /api/users/:_id/exercises
+app.get('/api/users/:_id/exercises', (req, res) => {
+  let id = req.params._id;
+  User.findById(id, (findByIdErr, userFound) => {
+    if (findByIdErr) {
+      console.log("findById() error");
+      console.error(findByIdErr);
+    }
+    res.json(userFound.logs);
+  });
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
