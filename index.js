@@ -97,7 +97,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   if (!date) {
     date = new Date().toDateString();
   } else {
-    date = new Date(date.replaceAll('-', ',')).toDateString()
+    date = new Date(date).toDateString();
   }
 
   let addExercise = {description, duration, date}
