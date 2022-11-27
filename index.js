@@ -98,9 +98,9 @@ app.post('/api/users/:_id/exercises', (req, res) => {
     date = new Date().toDateString();
   } else {
     date = new Date(date).toDateString();
-  }
+  };
 
-  let addExercise = {description, duration, date}
+  let addExercise = {description, duration, date};
 
   User.findOneAndUpdate(
     {_id: id},
@@ -117,28 +117,60 @@ app.post('/api/users/:_id/exercises', (req, res) => {
         "description": updatedUser.newExercise.description,
         "duration": updatedUser.newExercise.duration,
         "date": updatedUser.newExercise.date
-      })
+      });
     }
   );
 });
 
 // Handle GET requests to /api/users/:_id/logs
+//  display log for specified user id
+//  if from, to, or limit is provided return filtered log
 app.get('/api/users/:_id/logs', (req, res) => {
+  
   let id = req.params._id;
+  let {from, to, limit} = req.query;
+
   User.findOne({_id: id}, (findOneErr, userFound) => {
     if (findOneErr) {
       console.log("findOne() error");
       console.error(findOneErr);
     }
-    res.json({
-      "username": userFound.username,
-      "_id": userFound._id,
-      "count": userFound.logs.length,
-      "log": userFound.logs
-    });
+    if (from || to || limit) {
+      let limitedLog = userFound.logs;
+      if (from) {
+        from = new Date(from).getTime();
+        limitedLog = limitedLog.filter(log => {
+          let logDate = new Date(log.date).getTime();
+          return logDate > from;
+        })
+      }
+      if (to) {
+        to = new Date(to).getTime();
+        limitedLog = limitedLog.filter(log => {
+          let logDate = new Date(log.date).getTime();
+          return logDate < to;
+        })
+      }
+      if (limit) {
+        limitedLog = limitedLog.slice(0, limit)
+      }
+      res.json({
+        "username": userFound.username,
+        "_id": userFound._id,
+        "count": userFound.logs.length,
+        "log": limitedLog
+      });
+    } else {
+      res.json({
+        "username": userFound.username,
+        "_id": userFound._id,
+        "count": userFound.logs.length,
+        "log": userFound.logs
+      });
+    };
   });
-})
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
-  console.log('Your app is listening on port ' + listener.address().port)
-})
+  console.log('Your app is listening on port ' + listener.address().port);
+});
