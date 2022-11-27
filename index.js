@@ -51,7 +51,7 @@ app.post('/api/users', (req, res) => {
     if (saveErr) {
       console.log('save() error');
       console.error(saveErr);
-    }
+    };
     res.json({
       "username": userSaved.username,
       "_id": userSaved._id
@@ -69,13 +69,13 @@ app.get('/api/users', (req, res) => {
     if (findErr) {
       console.log('User.find() error');
       console.error(findErr);
-    }
+    };
     usersFound.forEach(user => {
       userList.push({
         _id: user._id,
         username: user.username
-      })
-    })
+      });
+    });
     res.json(userList);
   });
 });
@@ -88,20 +88,15 @@ app.get('/api/users', (req, res) => {
 //    date: date string (current date if field is blank)
 //  return updated user object
 app.post('/api/users/:_id/exercises', (req, res) => {
-
   let {description: description, duration: duration, date: date} = req.body;
   let id = req.params._id;
-
   duration = Number(duration);
-
   if (!date) {
     date = new Date().toDateString();
   } else {
     date = new Date(date).toDateString();
   };
-
   let addExercise = {description, duration, date};
-
   User.findOneAndUpdate(
     {_id: id},
     {"$push": {logs: addExercise}, newExercise: addExercise},
@@ -110,7 +105,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
       if (findAndUpdateErr) {
         console.log('findOneAndUpdate() error');
         console.error(findAndUpdateErr);
-      }
+      };
       res.json({
         "username": updatedUser.username,
         "_id": updatedUser._id,
@@ -126,15 +121,13 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 //  display log for specified user id
 //  if from, to, or limit is provided return filtered log
 app.get('/api/users/:_id/logs', (req, res) => {
-  
   let id = req.params._id;
   let {from, to, limit} = req.query;
-
   User.findOne({_id: id}, (findOneErr, userFound) => {
     if (findOneErr) {
       console.log("findOne() error");
       console.error(findOneErr);
-    }
+    };
     if (from || to || limit) {
       let limitedLog = userFound.logs;
       if (from) {
@@ -142,18 +135,18 @@ app.get('/api/users/:_id/logs', (req, res) => {
         limitedLog = limitedLog.filter(log => {
           let logDate = new Date(log.date).getTime();
           return logDate > from;
-        })
-      }
+        });
+      };
       if (to) {
         to = new Date(to).getTime();
         limitedLog = limitedLog.filter(log => {
           let logDate = new Date(log.date).getTime();
           return logDate < to;
-        })
-      }
+        });
+      };
       if (limit) {
         limitedLog = limitedLog.slice(0, limit)
-      }
+      };
       res.json({
         "username": userFound.username,
         "_id": userFound._id,
