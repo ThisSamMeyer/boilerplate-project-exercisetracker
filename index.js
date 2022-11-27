@@ -21,9 +21,12 @@ const userSchema = new Schema ({
     type: String,
     required: true
   },
-  exercises: {
+  logs: {
     type: Array,
     default: []
+  },
+  newExercise: {
+    type: Object
   }
 });
 
@@ -99,7 +102,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
   User.findOneAndUpdate(
     {_id: id},
-    {"$push": {exercises: addExercise}},
+    {"$push": {logs: addExercise}, newExercise: addExercise},
     {new: true},
     (findAndUpdateErr, updatedUser) => {
       if (findAndUpdateErr) {
@@ -109,9 +112,9 @@ app.post('/api/users/:_id/exercises', (req, res) => {
       res.json({
         "username": updatedUser.username,
         "_id": updatedUser._id,
-        "description": addExercise.description,
-        "duration": addExercise.duration,
-        "date": addExercise.date
+        "description": updatedUser.newExercise.description,
+        "duration": updatedUser.newExercise.duration,
+        "date": updatedUser.newExercise.date
       })
     }
   );
